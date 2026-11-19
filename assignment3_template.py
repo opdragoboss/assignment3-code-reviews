@@ -4,6 +4,8 @@
 import argparse
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+
 
 SVM_X = ((1, 1), (1, 2), (2, 1), (0, 0), (1, 0), (0, 1))
 SVM_Y = (1, 1, 1, -1, -1, -1)
@@ -15,14 +17,6 @@ def plot_svm_data(output_path):
     Point IDs are 1-based and match the source table order. This helper
     does not identify support vectors or draw the separating boundary.
     """
-    try:
-        import matplotlib.pyplot as plt
-    except ImportError as exc:
-        raise SystemExit(
-            "Matplotlib could not be imported. Use the README's clean virtual "
-            "environment and install requirements.txt."
-        ) from exc
-
     fig, ax = plt.subplots(figsize=(6, 6))
     for label, color, marker in ((1, "tab:blue", "o"), (-1, "tab:orange", "s")):
         points = [x for x, y in zip(SVM_X, SVM_Y) if y == label]

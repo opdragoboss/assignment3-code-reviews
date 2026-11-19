@@ -6,6 +6,10 @@ Implement the two update functions from scratch, then complete the experiment.
 import argparse
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.datasets import make_blobs
+
 K_VALUES = (2, 3, 4, 6, 10)
 
 
@@ -20,8 +24,6 @@ def update_assignments(data, centroids):
     Euclidean distance. If a point is equally close to several centroids,
     it is assigned to the smallest centroid index (NumPy argmin).
     """
-    import numpy as np
-
     data = np.asarray(data, dtype=float)
     centroids = np.asarray(centroids, dtype=float)
     differences = data[:, None, :] - centroids[None, :, :]
@@ -37,8 +39,6 @@ def update_centroids(data, centroids, assignments):
     initial centers, which the with-replacement initializer can produce.
     The input centroid array is copied and is not modified in place.
     """
-    import numpy as np
-
     data = np.asarray(data, dtype=float)
     centroids = np.asarray(centroids, dtype=float)
     assignments = np.asarray(assignments)
@@ -61,7 +61,6 @@ def kmeans(data, centroids, max_iterations=100):
 
 def make_toy_data():
     """Generate the exact make_blobs configuration from Assignment 4."""
-    from sklearn.datasets import make_blobs
     return make_blobs(n_samples=4000, centers=4, cluster_std=0.60, random_state=0)
 
 
@@ -80,8 +79,6 @@ def run_experiments(output_dir, seed=0, max_iterations=100):
     Use the four-component truth labels only for a reference plot. K-means
     must cluster the features without access to those labels.
     """
-    import numpy as np
-
     data, true_labels = make_toy_data()
     rng = np.random.default_rng(seed)
     output_dir = Path(output_dir)
@@ -113,8 +110,6 @@ def run_experiments(output_dir, seed=0, max_iterations=100):
 
 
 def _save_cluster_plot(data, labels, centroids, title, path):
-    import matplotlib.pyplot as plt
-
     fig, ax = plt.subplots(figsize=(6.2, 5.2))
     ax.scatter(data[:, 0], data[:, 1], c=labels, cmap="tab10", s=8, alpha=0.75, linewidths=0)
     if centroids is not None:
@@ -132,8 +127,6 @@ def _save_cluster_plot(data, labels, centroids, title, path):
 
 
 def _save_overview(panels, path):
-    import matplotlib.pyplot as plt
-
     fig, axes = plt.subplots(2, 3, figsize=(12, 8))
     for ax, (title, data, labels, centroids) in zip(axes.ravel(), panels):
         ax.scatter(data[:, 0], data[:, 1], c=labels, cmap="tab10", s=4, alpha=0.7, linewidths=0)

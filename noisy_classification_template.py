@@ -4,7 +4,12 @@ Complete the TODOs. Keep test labels clean and use them only for evaluation.
 """
 
 import argparse
+import csv
 from pathlib import Path
+
+import numpy as np
+from sklearn.metrics import accuracy_score
+from sklearn.svm import SVC
 
 SVM_C = 1.0
 SVM_GAMMA = 0.01
@@ -19,7 +24,6 @@ def generate_clean_split(rng, samples_per_class=1000):
     Negative class: mean (-1, -1), covariance 3I.
     The negative covariance entries are variances, not standard deviations.
     """
-    import numpy as np
     positive = rng.multivariate_normal((1, 1), np.eye(2), samples_per_class)
     negative = rng.multivariate_normal((-1, -1), 3 * np.eye(2), samples_per_class)
     features = np.vstack((positive, negative))
@@ -35,8 +39,6 @@ def corrupt_training_labels(clean_labels, rng):
     flipped in one direction to be flipped again by the other rule.
     Return a new array, leaving clean_labels unchanged.
     """
-    import numpy as np
-
     clean_labels = np.asarray(clean_labels)
     noisy = clean_labels.copy()
     positive = np.flatnonzero(clean_labels == 1)
@@ -59,12 +61,11 @@ def repair_labels_knn(train_features, noisy_labels, neighbors):
     the original noisy labels, so row ordering does not affect the outcome.
     sklearn.neighbors may be used; from-scratch K-NN is not a source requirement.
     """
-    import numpy as np
-
     features = np.asarray(train_features, dtype=float)
     labels = np.asarray(noisy_labels)
     differences = features[:, None, :] - features[None, :, :]
     squared_distances = np.sum(differences * differences, axis=2)
+    # squared_distances[i, j] is the squared Euclidean distance between training rows i and j.
     np.fill_diagonal(squared_distances, np.inf)
     # mergesort is stable, so equal distances keep the smaller row index.
     neighbor_index = np.argsort(squared_distances, axis=1, kind="mergesort")[:, :neighbors]
@@ -75,8 +76,6 @@ def repair_labels_knn(train_features, noisy_labels, neighbors):
 
 def train_and_evaluate(train_features, train_labels, test_features, test_labels):
     """Train the required RBF SVM and return accuracy on the clean test set."""
-    from sklearn.svm import SVC
-    from sklearn.metrics import accuracy_score
     model = SVC(kernel="rbf", C=SVM_C, gamma=SVM_GAMMA)
     model.fit(train_features, train_labels)
     return float(accuracy_score(test_labels, model.predict(test_features)))
@@ -90,10 +89,6 @@ def run_comparison(repeats, seed, neighbors, output_path):
     trial, use identical data and corrupted labels for both approaches.
     Do not give the repair method the clean training or test labels.
     """
-    import csv
-
-    import numpy as np
-
     rng = np.random.default_rng(seed)
     train_features, train_labels = generate_clean_split(rng)
     test_features, test_labels = generate_clean_split(rng)
